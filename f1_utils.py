@@ -60,6 +60,42 @@ class f1_utilsObj:
             #print('sp',seg_pred.shape,seg_pred_tmp.shape)
 
         return seg_pred
+    
+    def calc_pred_sf_mask_full_2channel(self, sess, ae, labeled_data_img1, labeled_data_img2, batch_factor=40):
+        total_slices = labeled_data_img1.shape[0]
+
+        test_data1 = labeled_data_img1
+        test_data2 = labeled_data_img2
+
+        #remainder
+        rem=total_slices%batch_factor
+        #quotient
+        quo=int(total_slices/batch_factor)
+
+        #print('rem,quo',rem,quo)
+
+        for i in range(0,quo+1):
+            if(i!=quo):
+                no_of_slices=batch_factor
+                test_fat_data_tmp=np.reshape(test_data1[i*batch_factor:(i+1)*batch_factor],(no_of_slices,self.img_size_x,self.img_size_y,1))
+                test_wat_data_tmp=np.reshape(test_data2[i*batch_factor:(i+1)*batch_factor],(no_of_slices,self.img_size_x,self.img_size_y,1))
+            else:
+                no_of_slices=rem
+                test_fat_data_tmp=np.reshape(test_data1[i*batch_factor:(i*batch_factor+rem)],(no_of_slices,self.img_size_x,self.img_size_y, 1))
+                test_wat_data_tmp=np.reshape(test_data2[i*batch_factor:(i*batch_factor+rem)],(no_of_slices,self.img_size_x,self.img_size_y, 1))
+            
+            test_data_tmp=np.concatenate((test_fat_data_tmp,test_wat_data_tmp),axis=-1)
+
+            seg_pred_tmp = sess.run(ae['y_pred'], feed_dict={ae['x']: test_data_tmp, ae['train_phase']: False})
+
+            if(i==0):
+                seg_pred=seg_pred_tmp
+            else:
+                seg_pred=np.concatenate((seg_pred,seg_pred_tmp),axis=0)
+
+            #print('sp',seg_pred.shape,seg_pred_tmp.shape)
+
+        return seg_pred 
     def reshape_img_and_f1_score(self, predicted_img_arr, mask, pixel_size):
         """
         :param predicted_img_arr:
