@@ -21,7 +21,7 @@ class modelObj:
         self.img_size_flat=cfg.img_size_flat
         self.batch_size=cfg.batch_size
 
-    def unet(self,learn_rate_seg=0.001,conv_less=0,fs_de=2,dsc_loss=1,more_filters=0,mixup_en=0,en_1hot=0,wgt_fac=0):
+    def unet(self,learn_rate_seg=0.001,conv_less=0,fs_de=2,dsc_loss=1,num_channels=1,more_filters=0,mixup_en=0,en_1hot=0,wgt_fac=0):
 
         no_filters=[1, 16, 32, 64, 128, 256]
         #default U-Net filters
@@ -36,7 +36,7 @@ class modelObj:
         elif(self.num_classes==4):
             class_weights = tf.constant([[0.05, 0.1, 0.45, 0.4]],name='class_weights')
 
-        num_channels=no_filters[0]
+        #num_channels=no_filters[0]
         # placeholders - input to the network
         x = tf.placeholder(tf.float32, shape=[None, self.img_size_x, self.img_size_y, num_channels], name='x')
         if(mixup_en==1):
