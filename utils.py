@@ -242,7 +242,8 @@ def shuffle_minibatch(ip_list, batch_size=20,num_channels=1,labels_present=1,axi
 
     len_of_train_data=np.arange(image_data_train.shape[axis])
 
-    randomize=np.random.choice(len_of_train_data,size=len(len_of_train_data),replace=True)
+    #randomize=np.random.choice(len_of_train_data,size=len(len_of_train_data),replace=True)
+    randomize=np.random.choice(len_of_train_data,size=batch_size,replace=True)
 
     count=0
     for index_no in randomize:
@@ -440,3 +441,19 @@ def get_area(mask, labels=4):
     for i in range(labels):
         nr_voxels[i] = mask[mask==i].shape[0]
     return nr_voxels
+
+def calc_l3_index_val_set(val_label_orig,val_img_crop,val_label_crop):
+    '''
+    Find the slices that have valid mask (L3 vertebrae mask in this CT scans) & only use those slices for the validation volumes in model training
+    '''
+    len_of_val_list=len(val_label_orig)
+    val_label_orig_re,val_img_crop_re,val_label_crop_re=[],[],[]
+    for index in range(0,len_of_val_list):
+        c_x,c_y,c_z = np.where(val_label_crop[index]!=0)
+        l3_index = np.unique(c_x)
+        
+        val_label_orig_re.append(val_label_orig[index][:,:,l3_index])
+        val_img_crop_re.append(val_img_crop[index][l3_index])
+        val_label_crop_re.append(val_label_crop[index][l3_index])
+    
+    return val_label_orig_re,val_img_crop_re,val_label_crop_re
