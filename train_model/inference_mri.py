@@ -32,7 +32,7 @@ parser.add_argument('--dataset', type=str, default='diff_fat', choices=['diff_fa
 #parser.add_argument('--ip_path', type=str, default=None)
 #fat image
 #parser.add_argument('--ip_path_fat', type=str, default='/usr/bmicnas01/data-biwi-01/krishnch/datasets/bodyfat_uzh/orig/004/fat_img.nii.gz')
-parser.add_argument('--ip_path_fat', type=str, default='/usr/bmicnas01/data-biwi-01/bmicdatasets-originals/Originals/USZ/bodyfat_orig/orig/004/fat_img.nii.gz')
+parser.add_argument('--ip_path_fat', type=str, default='/usr/bmicnas01/data-biwi-01/bmicdatasets-originals/Originals/USZ/bodyfat_orig/top_down_nifti/top_down_niftyp10_z1_f.nii.gz')
 #water image
 #parser.add_argument('--ip_path_water', type=str, default='/usr/bmicnas01/data-biwi-01/krishnch/datasets/bodyfat_uzh/orig_cut/004/water_img.nii.gz')
 #parser.add_argument('--ip_path_water', type=str, default='/usr/bmicnas01/data-biwi-01/bmicdatasets-originals/Originals/USZ/bodyfat_orig/orig/004/water_img.nii.gz')
@@ -40,12 +40,18 @@ parser.add_argument('--ip_path_water', type=str, default=None)
 
 #version of run
 #parser.add_argument('--out_path', type=str, default=None)
-parser.add_argument('--out_path', type=str, default='/usr/bmicnas01/data-biwi-01/krishnch/projects/bodyfat_seg/fin_git_repo/output/')
+parser.add_argument('--out_path', type=str, default='/usr/bmicnas01/data-biwi-01/bmicdatasets-originals/Originals/USZ/bodyfat_orig/top_down_nifti/')
+
+#patient id
+parser.add_argument('--patient_id', type=str, default='10')
+
+#time point
+parser.add_argument('--time_pt', type=str, default='1')
 
 #enable 1-hot encoding of the labels
 parser.add_argument('--en_1hot', type=int, default=0)
 #dsc loss
-parser.add_argument('--dsc_loss', type=int, default=0)
+parser.add_argument('--dsc_loss', type=int, default=2)
 #wgt_fac weighted cross entropy
 parser.add_argument('--wgt_fac', type=int, default=0)
 #num of input channels
@@ -112,10 +118,10 @@ if(out_path=='None'):
 #save_dir='../../bodyfat_seg/models/diff_fat/baseline_unet/with_data_aug/tr8/'
 if(parse_config.num_channels==1):
     #1 channel (fat) image model
-    save_dir='../../../git_repo_jun18_2020/tr_models_final/models/diff_fat/only_fat_img/baseline_unet/with_data_aug/tr8/'
+    save_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/bodyfat_seg/git_repo_jun18_2020/tr_models_final/models/diff_fat/only_fat_img/baseline_unet/with_data_aug/tr8/c4_v0/unet_dsc_'+str(parse_config.dsc_loss)+'_wgt_fac_0_lr_seg_0.001/'
 else:
     #2 channels (fat + water) model
-    save_dir='../../../git_repo_jun18_2020/tr_models_final/models/diff_fat/baseline_unet/with_data_aug/tr8/'
+    save_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/bodyfat_seg/git_repo_jun18_2020/tr_models_final/models/diff_fat/baseline_unet/with_data_aug/tr8/c4_v0/unet_dsc_'+str(parse_config.dsc_loss)+'_wgt_fac_0_lr_seg_0.001/'
 
 #save_dir='/usr/bmicnas01/data-biwi-01/krishnch/projects/bodyfat_seg/trained_models_final/models/diff_fat/baseline_unet/with_data_aug/tr8/c4_v0/unet_dsc_0_wgt_fac_0_lr_seg_0.001/'
 
@@ -184,11 +190,36 @@ else:
 final_predicted_mask,_ = f1_util.reshape_img_and_f1_score(pred_sf_mask, label_sys, pixel_size)
 
 print('Saving precited mask...')
-#save the nifti segmentation file
-array_img = nib.Nifti1Image(final_predicted_mask.astype(np.int16), affine_tst_fat)
+print('patient_id, time_pt',parse_config.patient_id,parse_config.time_pt)
+#save segmentation mask in nifti format
+array_mask = nib.Nifti1Image(final_predicted_mask.astype(np.int16), affine_tst_fat)
 if(parse_config.num_channels==2):
-    pred_filename = str(out_path)+'/pred_mask_2channel_fat_wat_imgs.nii.gz'
+    out_path_tmp = out_path + '/mri/fat_water_images_model/patient_id_'+str(parse_config.patient_id)+'/'
+    pathlib.Path(out_path_tmp).mkdir(parents=True, exist_ok=True)
+    pred_filename = str(out_path_tmp)+'pred_mask_timept_'+str(parse_config.time_pt)+'.nii.gz'
+    
+    #Also, save fat & water images in nifti format
+    pred_filename_img_fat= str(out_path_tmp)+'fat_image_timept_'+str(parse_config.time_pt)+'.nii.gz'
+    pred_filename_img_water= str(out_path_tmp)+'water_image_timept_'+str(parse_config.time_pt)+'.nii.gz'
+    
+    array_img_fat = nib.Nifti1Image(fat_img_orig, affine_tst_fat)
+    array_img_water = nib.Nifti1Image(water_img_orig, affine_tst_water)
+    
+    nib.save(array_img_water, pred_filename_img_water)
+    
 else:
-    pred_filename = str(out_path)+'/pred_mask_1channel_fat_img.nii.gz'
-nib.save(array_img, pred_filename)
+    out_path_tmp = out_path + '/mri/only_fat_image_model/patient_id_'+str(parse_config.patient_id)+'/'
+    pathlib.Path(out_path_tmp).mkdir(parents=True, exist_ok=True)
+    
+    pred_filename = str(out_path_tmp)+'/pred_mask_timept_'+str(parse_config.time_pt)+'.nii.gz'
+    
+    #Also, save fat image in nifti format
+    pred_filename_img_fat= str(out_path_tmp)+'fat_image_timept_'+str(parse_config.time_pt)+'.nii.gz'
+    array_img_fat = nib.Nifti1Image(fat_img_orig, affine_tst_fat)
+
+nib.save(array_img_fat, pred_filename_img_fat)
+    
+nib.save(array_mask, pred_filename)
+
+
 
