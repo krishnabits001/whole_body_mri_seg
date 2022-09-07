@@ -255,12 +255,15 @@ class f1_utilsObj:
         n_imgs=4
         #print('v',n_imgs,max_val)
         #print('v',test_data_img.shape,test_data_labels.shape,predicted_labels.shape)
-        
+        if(max_val<201):
+            min_val=max_val
+        else:
+            min_val=201
         j=0
         plt.figure(figsize=(16,12))
         plt.suptitle('Predicted Seg',fontsize=10)
-        #for example_i in range(50,max_val,50):
-        for example_i in range(50,201,50):
+        for example_i in range(50,min_val,50):
+        #for example_i in range(50,201,50):
             #print('j',j,example_i)
             plt.subplot(n_imgs,3,3*j+1)
             if(j==0):
