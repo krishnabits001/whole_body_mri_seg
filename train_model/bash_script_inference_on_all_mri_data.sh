@@ -10,6 +10,8 @@ do
       if [ -f "$FILE" ]; then
          echo "$FILE exists. Running Inference on it."
          python inference_mri.py --ip_path_fat=$FILE --patient_id=$pid --time_pt=$timept
+         #give out_path here to save the predicted masks for all subjects or define it once inside inference_mri.py file.
+         #python inference_mri.py --ip_path_fat=$FILE --out_path=<directory to save all predicted masks> --patient_id=$pid --time_pt=$timept
       fi
    done
 done
