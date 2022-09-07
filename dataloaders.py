@@ -35,7 +35,10 @@ class dataloaderObj:
         return final_image_data
 
     def load_diff_fat_types_img_labels(self, train_ids_list,ret_affine=0,label_present=1):
+        #This dataloader is for MRI data
         #Load the body fat data and its labels
+        #It has 3 foregorund labels: subcutaneous fat, visceral fat, and muscle tissue
+
         for study_id in train_ids_list:
             #print("diff study_id",study_id)
             img_fname = str(self.data_path_tr)+str(study_id)+'/fat_img.nii.gz'
@@ -185,7 +188,10 @@ class dataloaderObj:
                 return img_tmp,label_re,pixel_size,affine_tst
 
     def load_fat_img_labels(self, train_ids_list,ret_affine=0,label_present=1):
+        #This dataloader is for MRI data
         #Load the body fat data and its labels
+        #It has 2 labels: Fat (subcutaneous & visceral as one label) and background 
+
         for study_id in train_ids_list:
             #print("study_id",study_id)
             img_fname = str(self.data_path_tr)+str(study_id)+'/fat_img.nii.gz'
@@ -217,6 +223,36 @@ class dataloaderObj:
                 return img_tmp,label_re,pixel_size
             else:
                 return img_tmp,label_re,pixel_size,affine_tst
+   
+    def load_ct_fat_img_labels(self, train_ids_list,ret_affine=0,label_present=1):
+        #This dataloader is for CT data
+        #Load the body fat data and its labels
+        #It has 3 foreground labels: subcutaneous fat, visceral fat, and muscle tissue
+
+        for study_id in train_ids_list:
+            #print("study_id",study_id)
+            img_fname = str(self.data_path_tr)+str(study_id)+'_im.nii.gz'
+            img_load=nib.load(img_fname)
+            img_tmp=img_load.get_data()
+            pixel_size=img_load.header['pixdim'][1:4]
+            affine_tst=img_load.affine
+            if(label_present==1):
+                mask_fname = str(self.data_path_tr)+str(study_id)+'_mask.nii.gz'
+                mask_load=nib.load(mask_fname)
+                label_tmp=mask_load.get_data()
+
+        #print('before norm',np.min(img_tmp),np.max(img_tmp),np.mean(img_tmp))
+        #normalize each 3D image separately
+        img_tmp=self.normalize_minmax_data(img_tmp)
+        #print('after norm',np.min(img_tmp),np.max(img_tmp),np.mean(img_tmp))
+
+        if(label_present==0):
+            return img_tmp,pixel_size
+        else:
+            if(ret_affine==0):
+                return img_tmp,label_tmp,pixel_size
+            else:
+                return img_tmp,label_tmp,pixel_size,affine_tst
 
     def crop_or_pad_slice_to_size(self, img_slice, nx, ny):
 
@@ -240,7 +276,6 @@ class dataloaderObj:
                 slice_cropped[x_c:x_c + x, y_c:y_c + y] = img_slice[:, :]
 
         return slice_cropped
-
 
     def preprocess_data(self, img, mask, pixel_size,label_present=1):
 
@@ -292,7 +327,8 @@ class dataloaderObj:
             return cropped_img
 
     def load_cropped_img_labels(self, train_ids_list,label_present=1):
-    #Load the cropped data and its labels
+        #Load the cropped data and its labels - for MRI data
+
         count=0
         for study_id in train_ids_list:
             #print("study_id",study_id)
