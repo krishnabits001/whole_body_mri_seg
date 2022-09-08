@@ -15,7 +15,7 @@ img_size_y = 224
 img_size_flat = img_size_x * img_size_y
 # Number of colour channels for the images: 1 channel for gray-scale.
 num_channels = 1
-# Number of classes : # 0-background, 1-rv, 2-myo, 3-lv
+# Number of classes : # 0-background, 1-subcutaneous fat, 2-visceral fat, 3-muscle 
 num_classes=4
 size=(img_size_x,img_size_y)
 target_resolution=(1.5,1.5)
