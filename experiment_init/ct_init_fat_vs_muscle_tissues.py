@@ -15,7 +15,7 @@ img_size_y = 224
 img_size_flat = img_size_x * img_size_y
 # Number of colour channels for the images: 1 channel for gray-scale.
 num_channels = 1
-# Number of classes : # 0-background, 1-muscle, 2-parav, 3-psoas, 4-subcutaneous fat, 5-visceral fat
+# Number of classes : # 0-background, 1-abdominal muscle, 2-paravertebral muscle, 3-psoas muscle, 4-subcutaneous fat, 5-visceral fat
 num_classes=6
 size=(img_size_x,img_size_y)
 target_resolution=(1.5,1.5)
@@ -47,4 +47,4 @@ lr=0.001
 lr_re=0.001
 #batch_size
 batch_size=20
-struct_name=['muscle','parav','psoas','sub_fat','visc_fat']
+struct_name=['abdomin_musc','parav_musc','psoas_musc','sub_fat','visc_fat']
