@@ -189,7 +189,7 @@ class f1_utilsObj:
             #print("crop test data shape",crop_img_re.shape,crop_labels_re.shape)
 
             # Make directory for that image
-            seg_model_dir=str(save_dir)+'pred_segs/'+str(test_id)+'/'
+            seg_model_dir=str(save_dir)+'/pred_segs/'+str(test_id)+'/'
             pathlib.Path(seg_model_dir).mkdir(parents=True, exist_ok=True)
 
             # Calc dice score and predicted segmentation & store in a txt file
@@ -257,12 +257,14 @@ class f1_utilsObj:
         #print('v',test_data_img.shape,test_data_labels.shape,predicted_labels.shape)
         if(max_val<201):
             min_val=max_val
+            start_val=0
         else:
             min_val=201
+            start_val=50
         j=0
         plt.figure(figsize=(16,12))
         plt.suptitle('Predicted Seg',fontsize=10)
-        for example_i in range(50,min_val,50):
+        for example_i in range(start_val,min_val,50):
         #for example_i in range(50,201,50):
             #print('j',j,example_i)
             plt.subplot(n_imgs,3,3*j+1)
