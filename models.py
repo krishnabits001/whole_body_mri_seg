@@ -35,6 +35,8 @@ class modelObj:
             class_weights = tf.constant([[0.1, 0.45, 0.45]],name='class_weights')
         elif(self.num_classes==4):
             class_weights = tf.constant([[0.05, 0.1, 0.45, 0.4]],name='class_weights')
+        elif(self.num_classes==6):
+            class_weights = tf.constant([[0.05, 0.2, 0.2, 0.25, 0.15, 0.15]],name='class_weights')
 
         #num_channels=no_filters[0]
         # placeholders - input to the network
