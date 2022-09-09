@@ -231,17 +231,22 @@ class dataloaderObj:
 
         for study_id in train_ids_list:
             #print("study_id",study_id)
-            img_fname = str(self.data_path_tr)+str(study_id)+'_im.nii.gz'
+            img_fname = str(self.data_path_tr)+'sl_im/p'+str(study_id)+'.nii.gz'
             img_load=nib.load(img_fname)
             img_tmp=img_load.get_data()
             pixel_size=img_load.header['pixdim'][1:4]
             affine_tst=img_load.affine
             if(label_present==1):
-                mask_fname = str(self.data_path_tr)+str(study_id)+'_mask.nii.gz'
+                mask_fname = str(self.data_path_tr)+'sl_mask/mp'+str(study_id)+'.nii.gz'
                 mask_load=nib.load(mask_fname)
                 label_tmp=mask_load.get_data()
 
         #print('before norm',np.min(img_tmp),np.max(img_tmp),np.mean(img_tmp))
+        #expand axis if it has only 2 dimensions (2D slice)
+        if(len(img_tmp.shape)==2):
+            img_tmp = np.expand_dims(img_tmp,axis=2)
+        if(len(label_tmp.shape)==2):
+            label_tmp = np.expand_dims(label_tmp,axis=2)
         #normalize each 3D image separately
         img_tmp=self.normalize_minmax_data(img_tmp)
         #print('after norm',np.min(img_tmp),np.max(img_tmp),np.mean(img_tmp))
