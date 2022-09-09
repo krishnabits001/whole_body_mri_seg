@@ -11,6 +11,8 @@ python inference_mri.py --ip_path_fat=<path_of_input_fat_image> --out_path=<path
 #inference for any new test image - both fat & water images as 2 channel input
 #python inference_mri.py --ip_path_fat=<path_of_input_fat_image>  --ip_path_water=<path_of_input_water_image> --out_path=<path_to_save_predicted_segmentation_mask> --patient_id=<patient_id_if_required> --time_pt=<time_point_if_required>
 
+#inference for any new test CT image 
+python inference_ct.py --ip_path_ct=<path_of_input_CT_image> --out_path=<path_to_save_predicted_segmentation_mask> --patient_id=<patient_id>
 
 #to run inference on train, test and validation sets used for model training;
 #model trained with affine augmentations
